@@ -84,10 +84,19 @@ class SocialCommentPostErrorState extends SocialStates{
 
   SocialCommentPostErrorState(this.error);
 }
-//getcomment Post
+//get comment Post
 class SocialGetCommentPostSuccessState extends SocialStates{}
 class SocialGetCommentPostErrorState extends SocialStates{
   final String error;
 
   SocialGetCommentPostErrorState(this.error);
+}
+// getAllUsers in chats Screen
+class SocialGetAllUsersLoadingState extends SocialStates{}
+class SocialGetAllUsersSuccessState extends SocialStates{}
+class SocialGetAllUsersErrorState extends SocialStates{
+  final String error;
+
+  SocialGetAllUsersErrorState(this.error);
+
 }
