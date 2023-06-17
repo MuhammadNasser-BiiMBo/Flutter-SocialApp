@@ -267,7 +267,7 @@ class SocialCubit extends Cubit<SocialStates>{
   List<SocialUserModel> users = [];
   List<String> postsId = [];
   List<int> likes = [];
-  List<int>? commentsNumber =[];
+  List<int> commentsNumber =[];
   void getPosts(){
     posts = [];
     emit(SocialGetPostLoadingState());

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:social_app/models/post_model.dart';
-import 'package:social_app/shared/components/components.dart';
 import 'package:social_app/shared/cubit/cubit.dart';
 import 'package:social_app/shared/cubit/states.dart';
 import 'package:social_app/shared/styles/colors.dart';
@@ -92,7 +91,7 @@ class FeedsScreen extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 25,
-                backgroundImage: NetworkImage(SocialCubit.get(context).model!.image!),
+                backgroundImage: NetworkImage(model.image!),
               ),
               const SizedBox(width:  20,),
               Expanded(
@@ -217,7 +216,7 @@ class FeedsScreen extends StatelessWidget {
                           ),
 
                           Text(
-                          SocialCubit.get(context).commentsNumber![index]!=null?'${SocialCubit.get(context).commentsNumber![index]} Comments':'0 Comments',
+                          SocialCubit.get(context).commentsNumber[index]!=null?'${SocialCubit.get(context).commentsNumber[index]} Comments':'0 Comments',
                             style: Theme.of(context).textTheme.caption!.copyWith(
                                 fontSize: 14
                             ),
@@ -239,99 +238,96 @@ class FeedsScreen extends StatelessWidget {
               color: Colors.grey[300],
             ),
           ),
-          SizedBox(
-            height: 50,
-            child: Row(
-              children: [
-                Expanded(
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 18,
-                        backgroundImage: NetworkImage(SocialCubit.get(context).model!.image!),
-                      ),
-                      const SizedBox(width: 15,),
-                      Expanded(
-                        child: TextFormField(
-                          maxLines: 1,
-                          controller: commentController,
-                          keyboardType: TextInputType.text,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            height: 1,
-                            overflow: TextOverflow.clip,
+          Row(
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 18,
+                      backgroundImage: NetworkImage(model.image!),
+                    ),
+                    const SizedBox(width: 15,),
+                    Expanded(
+                      child: TextFormField(
+                        maxLines: 1,
+                        controller: commentController,
+                        keyboardType: TextInputType.text,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          height: 1,
+                          overflow: TextOverflow.ellipsis,
 
-                          ),
-                          decoration: const InputDecoration(
-                              contentPadding: EdgeInsetsDirectional.only(start: 10),
-                              label: Text(
-                                'write a comment...',
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(23)),
-                                gapPadding: 2,
-                              ),
-                              floatingLabelBehavior: FloatingLabelBehavior.never
-                          ),
+                        ),
+                        decoration: const InputDecoration(
+                            contentPadding: EdgeInsetsDirectional.only(start: 10),
+                            label: Text(
+                              'write a comment...',
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(23)),
+                              gapPadding: 2,
+                            ),
+                            floatingLabelBehavior: FloatingLabelBehavior.never
                         ),
                       ),
+                    ),
 
-                    ],
-                  ),
+                  ],
                 ),
-                const SizedBox(width: 5),
-                InkWell(
-                  child: Row(
-                    children:  [
-                      const Icon(
-                        IconlyBroken.heart,
-                        size: 18,
-                        color: Colors.red,
+              ),
+              const SizedBox(width: 5),
+              InkWell(
+                child: Row(
+                  children:  [
+                    const Icon(
+                      IconlyBroken.heart,
+                      size: 18,
+                      color: Colors.red,
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      'Like',
+                      style: Theme.of(context).textTheme.caption!.copyWith(
+                          fontSize: 15
                       ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Text(
-                        'Like',
-                        style: Theme.of(context).textTheme.caption!.copyWith(
-                            fontSize: 15
-                        ),
-                      ),
-                    ],
-                  ),
-                  onTap: (){
-                    SocialCubit.get(context).likePost(SocialCubit.get(context).postsId[index]);
-                  },
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 10,),
-                InkWell(
-                  child: Row(
-                    children:  [
-                      const Icon(
-                        IconlyBroken.arrowUpSquare,
-                        size: 18,
-                        color: Colors.green,
+                onTap: (){
+                  SocialCubit.get(context).likePost(SocialCubit.get(context).postsId[index]);
+                },
+              ),
+              const SizedBox(width: 10,),
+              InkWell(
+                child: Row(
+                  children:  [
+                    const Icon(
+                      IconlyBroken.arrowUpSquare,
+                      size: 18,
+                      color: Colors.green,
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      'Share',
+                      style: Theme.of(context).textTheme.caption!.copyWith(
+                          fontSize: 15
                       ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Text(
-                        'Share',
-                        style: Theme.of(context).textTheme.caption!.copyWith(
-                            fontSize: 15
-                        ),
-                      ),
-                    ],
-                  ),
-                  onTap: (){
-                    SocialCubit.get(context).commentPost(
-                        postId:SocialCubit.get(context).postsId[index],
-                        commentData: commentController.text
-                    );
-                  },
+                    ),
+                  ],
                 ),
-              ],
-            ),
+                onTap: (){
+                  SocialCubit.get(context).commentPost(
+                      postId:SocialCubit.get(context).postsId[index],
+                      commentData: commentController.text
+                  );
+                },
+              ),
+            ],
           ),
         ],
       ),
