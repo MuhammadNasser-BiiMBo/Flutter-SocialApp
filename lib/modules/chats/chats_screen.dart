@@ -39,7 +39,6 @@ Widget buildChatItem(SocialUserModel user,context)=>InkWell(
   child:Padding(
     padding: const EdgeInsets.all(15.0),
     child:   Row(
-      // crossAxisAlignment: CrossAxisAlignment.start,
       children:  [
         CircleAvatar(
           radius: 25,

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:social_app/models/message_model.dart';
 import 'package:social_app/models/post_model.dart';
 import 'package:social_app/models/social_user_model.dart';
 import 'package:social_app/modules/add_post/add_post_screen.dart';
@@ -340,16 +341,51 @@ class SocialCubit extends Cubit<SocialStates>{
     emit(SocialGetAllUsersLoadingState());
     if(users.isEmpty) {
       FirebaseFirestore.instance.collection('Users').get().then((value) {
-        value.docs.forEach((element) {
+        for (var element in value.docs) {
           if(element.data()['uId'] != model?.uId){
             users.add(SocialUserModel.fromJson(element.data()));
           }
-        });
+        }
         emit(SocialGetAllUsersSuccessState());
       }).catchError((error){
         emit(SocialGetAllUsersErrorState(error.toString()));
       });
     }
 
+  }
+
+  void sendMessage({required String receiverId,required String text,required String dateTime}){
+    MessageModel message = MessageModel(
+      senderId: model!.uId,
+      text: text,
+      dateTime: dateTime,
+      receiverId: receiverId
+    );
+    //set my chats
+    FirebaseFirestore.instance
+        .collection('Users')
+        .doc(model!.uId)
+        .collection('Chats')
+        .doc(receiverId)
+        .collection('Messages')
+        .add(message.toMap())
+        .then((value){
+      emit(SocialSendMessageSuccessState());
+    }).catchError((error){
+      emit(SocialSendMessageErrorState());
+    });
+    //set receiver chats
+    FirebaseFirestore.instance
+        .collection('Users')
+        .doc(receiverId)
+        .collection('Chats')
+        .doc(model!.uId)
+        .collection('Messages')
+        .add(message.toMap())
+        .then((value){
+      emit(SocialSendMessageSuccessState());
+    }).catchError((error){
+      emit(SocialSendMessageErrorState());
+    });
   }
 }
