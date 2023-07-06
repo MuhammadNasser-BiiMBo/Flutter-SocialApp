@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
-import 'package:social_app/modules/notifications/notifications_screen.dart';
-import 'package:social_app/modules/search/search_screen.dart';
-import 'package:social_app/shared/components/components.dart';
-import 'package:social_app/shared/cubit/cubit.dart';
+import 'package:hive/modules/notifications/notifications_screen.dart';
+import 'package:hive/shared/components/components.dart';
+import 'package:hive/shared/cubit/cubit.dart';
+import 'package:hive/shared/cubit/states.dart';
 
-import '../modules/add_post/add_post_screen.dart';
-import '../shared/cubit/states.dart';
 
 class SocialLayout extends StatelessWidget {
   const SocialLayout({Key? key}) : super(key: key);
@@ -16,46 +14,46 @@ class SocialLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return  BlocConsumer<SocialCubit,SocialStates>(
       listener: (context,state){
-        if(state is SocialNewPostState)
-          {
-            navigateTo(context,  AddPostScreen());
-          }
+        if(state is ChangeBottomNavState){
+          SocialCubit.get(context)..getProfilePhotos(SocialCubit.get(context).model!.uId!)..getPosts()..getNotifications();
+        }
       },
       builder:(context,state){
         var cubit = SocialCubit.get(context);
         return Scaffold(
           appBar: AppBar(
             centerTitle: false,
+            titleSpacing: 20,
             title: Text(
               cubit.titles[cubit.currentIndex],
               style: const TextStyle(
+                letterSpacing: 1.2,
                 fontWeight: FontWeight.w800,
                 fontSize: 26,
                 fontFamily: 'Times New Roman'
               ),
-
             ),
             actions: [
               IconButton(
                 onPressed: (){
+                  cubit.getNotifications();
                   navigateTo(context, const NotificationsScreen());
                 },
                 icon: const Icon(
                     IconlyBroken.notification,
                 )),
               IconButton(
-                onPressed: ()
-                {
-                  navigateTo(context, const SearchScreen());
+                onPressed: () {
+                  signOut(context);
                 },
                 icon: const Icon(
-                  IconlyBroken.search,
+                  IconlyBroken.logout,
                 )),
             ],
           ),
           body: cubit.screens[cubit.currentIndex],
           bottomNavigationBar: BottomNavigationBar(
-            showUnselectedLabels:false ,
+            showUnselectedLabels:true,
             currentIndex: cubit.currentIndex,
               onTap: (index){
               cubit.changeBottomNav(index);
@@ -78,8 +76,8 @@ class SocialLayout extends StatelessWidget {
                   label: 'Users'
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(IconlyBroken.setting),
-                  label: 'Settings'
+                  icon: Icon(IconlyBroken.profile),
+                  label: 'Profile'
                 ),
               ]
           ),

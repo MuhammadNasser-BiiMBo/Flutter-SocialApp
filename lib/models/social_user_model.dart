@@ -8,6 +8,31 @@ class SocialUserModel{
   String? bio;
   bool? isEmailVerified;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is SocialUserModel &&
+              runtimeType == other.runtimeType &&
+              image == other.image &&
+              bio == other.bio &&
+              coverImage == other.coverImage &&
+              email == other.email &&
+              isEmailVerified == other.isEmailVerified &&
+              name == other.name &&
+              phone == other.phone &&
+              uId == other.uId;
+
+  @override
+  int get hashCode =>
+      image.hashCode ^
+      bio.hashCode ^
+      coverImage.hashCode ^
+      email.hashCode ^
+      isEmailVerified.hashCode ^
+      name.hashCode ^
+      phone.hashCode ^
+      uId.hashCode;
+
   SocialUserModel({
     this.email,
     this.name,

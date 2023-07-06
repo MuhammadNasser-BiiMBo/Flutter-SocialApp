@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
-import 'package:social_app/shared/components/components.dart';
-import 'package:social_app/shared/cubit/cubit.dart';
-import 'package:social_app/shared/cubit/states.dart';
+import 'package:hive/shared/components/components.dart';
+import 'package:hive/shared/cubit/cubit.dart';
+import 'package:hive/shared/cubit/states.dart';
+
 
 class EditProfileScreen extends StatelessWidget {
   EditProfileScreen({Key? key}) : super(key: key);
@@ -21,7 +22,7 @@ class EditProfileScreen extends StatelessWidget {
         var profileImage =SocialCubit.get(context).profileImage;
         var coverImage =SocialCubit.get(context).coverImage;
         nameController.text=model!.name!;
-        bioController.text=model.bio!;
+        bioController.text=model.bio!.isEmpty?'Enter your bio Here ...': model.bio!;
         phoneController.text=model.phone!;
         return Scaffold(
             appBar: AppBar(

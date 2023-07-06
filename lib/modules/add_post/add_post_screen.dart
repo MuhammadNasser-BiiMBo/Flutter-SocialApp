@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:hive/shared/components/components.dart';
+import 'package:hive/shared/cubit/cubit.dart';
+import 'package:hive/shared/cubit/states.dart';
 import 'package:intl/intl.dart';
-import 'package:social_app/shared/components/components.dart';
-import 'package:social_app/shared/cubit/cubit.dart';
-import 'package:social_app/shared/cubit/states.dart';
+
 
 class AddPostScreen extends StatelessWidget {
   AddPostScreen({Key? key}) : super(key: key);
@@ -14,41 +15,16 @@ class AddPostScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return  BlocConsumer<SocialCubit,SocialStates>(
-      listener:(context,state){} ,
+      listener:(context,state){
+        if(state is ChangeBottomNavState){
+          textController.text = "";
+          SocialCubit.get(context).removePostImage();
+        }
+      },
       builder: (context,state){
         var model = SocialCubit.get(context).model;
         return Scaffold(
           resizeToAvoidBottomInset: false,
-          appBar: AppBar(
-            leading: IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-                SocialCubit.get(context).posts =[];
-                SocialCubit.get(context).getPosts();
-                SocialCubit.get(context).removePostImage();
-              },
-              icon: const Icon(IconlyBroken.arrowLeft2),
-            ),
-            title: const Text('Create Post'),
-            actions: [
-              defaultTextButton(
-                function: (){
-                  if(SocialCubit.get(context).postImage==null){
-                    SocialCubit.get(context).createPost(
-                        text: textController.text,
-                        dateTime: DateFormat.yMMMEd().format(DateTime.now()),
-                    );
-                  }else{
-                    SocialCubit.get(context).uploadPostImage(
-                        text: textController.text,
-                        dateTime: DateFormat.yMMMEd().format(DateTime.now()),
-                    );
-                  }
-                },
-                text: 'POST',
-              )
-            ],
-          ),
           body: Padding(
               padding: const EdgeInsets.all(15.0),
               child: Column(
@@ -92,6 +68,23 @@ class AddPostScreen extends StatelessWidget {
                           ],
                         ),
                       ),
+                      defaultTextButton(
+                        function: (){
+                          if(state is SocialPostImagePickedSuccessState){
+                            SocialCubit.get(context).uploadPostImage(
+                              text: textController.text,
+                              dateTime: DateFormat.yMd().add_Hms().format(DateTime.now()),
+                            );
+                          }else{
+                            SocialCubit.get(context).createPost(
+                              text: textController.text,
+                              dateTime: DateFormat.yMd().add_Hms().format(DateTime.now())
+                            );
+                          }
+                          textController.text='';
+                          SocialCubit.get(context).postImage=null;
+                        },
+                        text: 'POST')
                     ],
                   ),
                   Expanded(
@@ -139,7 +132,8 @@ class AddPostScreen extends StatelessWidget {
                   const SizedBox(
                     height: 20,
                   ),
-                  Row(
+                  if (state is !SocialPostImagePickedSuccessState)
+                    Row(
                     children: [
                       Expanded(
                         child: TextButton(
@@ -147,6 +141,7 @@ class AddPostScreen extends StatelessWidget {
                             SocialCubit.get(context).getPostImage();
                           },
                           child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: const [
                               Icon(
                                 IconlyBroken.image
@@ -157,12 +152,6 @@ class AddPostScreen extends StatelessWidget {
                               Text('Add Photos')
                             ],
                           ),
-
-                      )),
-                      Expanded(
-                        child: TextButton(
-                          onPressed: () {  },
-                          child: const Text('# tags'),
 
                       )),
                     ],

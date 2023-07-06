@@ -1,11 +1,9 @@
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:social_app/layout/social_layout.dart';
-import 'package:social_app/shared/network/cache_helper/cache_helper.dart';
-
-
-import '../../shared/components/components.dart';
+import 'package:hive/layout/social_layout.dart';
+import 'package:hive/shared/components/components.dart';
+import 'package:hive/shared/network/cache_helper/cache_helper.dart';
 import '../register/register_screen.dart';
 import 'cubit/cubit.dart';
 import 'cubit/states.dart';
@@ -75,6 +73,7 @@ class LoginScreen extends StatelessWidget {
                             return 'please enter your email address';
                           }
                         },
+
                         onSubmit: () {},
                       ),
                       const SizedBox(
@@ -87,7 +86,7 @@ class LoginScreen extends StatelessWidget {
                           prefix: Icons.lock_outlined,
                           suffix: Icons.visibility_outlined,
                           suffixPressed:(){
-                            // loginCubit.changePasswordVisibility();
+                            loginCubit.changePasswordVisibility();
                           } ,
                           isPassword: loginCubit.isPassword,
                           validate: (value) {
@@ -97,9 +96,9 @@ class LoginScreen extends StatelessWidget {
                           },
                           onSubmit: (value){
                             if (formKey.currentState!.validate()) {
-                              // loginCubit.userLogin(
-                              //     email: emailController.text,
-                              //     password: passwordController.text);
+                              loginCubit.userLogin(
+                                  email: emailController.text,
+                                  password: passwordController.text);
                             }
                           }
                       ),
@@ -131,6 +130,8 @@ class LoginScreen extends StatelessWidget {
                           defaultTextButton(
                               function: () {
                                 navigateTo(context,  RegisterScreen());
+                                emailController.text='';
+                                passwordController.text='';
                               },
                               text: 'Register Now '),
                         ],
@@ -143,6 +144,6 @@ class LoginScreen extends StatelessWidget {
           ),
         );
       },
-    );;
+    );
   }
 }

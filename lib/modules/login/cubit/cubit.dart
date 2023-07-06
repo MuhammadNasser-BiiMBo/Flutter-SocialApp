@@ -1,11 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:social_app/modules/login/cubit/states.dart';
-
-import '../../../shared/network/dio_helper/dio_helper.dart';
-import '../../../shared/network/end_points/end_points.dart';
-
+import 'package:hive/modules/login/cubit/states.dart';
 
 class SocialLoginCubit extends Cubit<SocialLoginStates>{
   SocialLoginCubit():super(SocialLoginInitialState());

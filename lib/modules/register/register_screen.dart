@@ -1,32 +1,30 @@
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:social_app/layout/social_layout.dart';
-import '../../shared/components/components.dart';
-import '../../shared/components/constants.dart';
+import 'package:hive/layout/social_layout.dart';
+import 'package:hive/shared/components/components.dart';
 import 'cubit/cubit.dart';
 import 'cubit/states.dart';
 
-
 class RegisterScreen extends StatelessWidget {
-   RegisterScreen({Key? key}) : super(key: key);
+  RegisterScreen({Key? key}) : super(key: key);
 
-    var formKey = GlobalKey<FormState>();
-    var emailController = TextEditingController();
-    var passwordController = TextEditingController();
-    var phoneController = TextEditingController();
-    var nameController = TextEditingController();
+  var formKey = GlobalKey<FormState>();
+  var emailController = TextEditingController();
+  var passwordController = TextEditingController();
+  var phoneController = TextEditingController();
+  var nameController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (BuildContext context)=>SocialRegisterCubit(),
-      child: BlocConsumer<SocialRegisterCubit,SocialRegisterStates>(
-        listener:(context,state) {
-          if(state is SocialCreateUserSuccessState){
-            navigateAndFinish(context, SocialLayout());
+      create: (BuildContext context) => SocialRegisterCubit(),
+      child: BlocConsumer<SocialRegisterCubit, SocialRegisterStates>(
+        listener: (context, state) {
+          if (state is SocialCreateUserSuccessState) {
+            navigateAndFinish(context, const SocialLayout());
           }
-        } ,
-        builder:(context,state) {
+        },
+        builder: (context, state) {
           var cubit = SocialRegisterCubit.get(context);
           return Scaffold(
             appBar: AppBar(),
@@ -42,10 +40,10 @@ class RegisterScreen extends StatelessWidget {
                         Text(
                           'REGISTER',
                           style:
-                          Theme.of(context).textTheme.headline4?.copyWith(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
+                              Theme.of(context).textTheme.headline4?.copyWith(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                         const SizedBox(
                           height: 20,
@@ -96,17 +94,16 @@ class RegisterScreen extends StatelessWidget {
                             label: 'Password',
                             prefix: Icons.lock_outlined,
                             suffix: Icons.visibility_outlined,
-                            suffixPressed:(){
+                            suffixPressed: () {
                               cubit.changePasswordVisibility();
-                            } ,
+                            },
                             isPassword: cubit.isPassword,
                             validate: (value) {
                               if (value!.isEmpty) {
                                 return 'please enter your password';
                               }
                             },
-                            onSubmit: (value){}
-                        ),
+                            onSubmit: (value) {}),
                         const SizedBox(
                           height: 20,
                         ),
@@ -120,27 +117,34 @@ class RegisterScreen extends StatelessWidget {
                               return 'please enter your phone number';
                             }
                           },
-                          onSubmit: () {},
+                          onSubmit: () {
+                            if (formKey.currentState!.validate()) {
+                              cubit.userRegister(
+                                  email: emailController.text,
+                                  phone: phoneController.text,
+                                  name: nameController.text,
+                                  password: passwordController.text);
+                            }
+                          },
                         ),
                         const SizedBox(
                           height: 20,
                         ),
                         ConditionalBuilder(
-                          condition: state is !SocialRegisterLoadingState,
+                          condition: state is! SocialRegisterLoadingState,
                           builder: (context) => defaultButton(
                               function: () {
                                 if (formKey.currentState!.validate()) {
                                   cubit.userRegister(
-                                    email: emailController.text,
-                                    phone: phoneController.text,
-                                    name: nameController.text,
-                                    password: passwordController.text
-                                  );
+                                      email: emailController.text,
+                                      phone: phoneController.text,
+                                      name: nameController.text,
+                                      password: passwordController.text);
                                 }
                               },
                               text: 'register'),
                           fallback: (context) =>
-                          const Center(child: CircularProgressIndicator()),
+                              const Center(child: CircularProgressIndicator()),
                         ),
                         const SizedBox(
                           height: 10,

@@ -1,3 +1,5 @@
+
+
 abstract class SocialStates{
 
 }
@@ -63,20 +65,21 @@ class SocialGetPostErrorState extends SocialStates{
   SocialGetPostErrorState(this.error);
 }
 
+// delete Post
+class SocialDeletePostSuccessState extends SocialStates{}
+class SocialDeletePostErrorState extends SocialStates{}
 //like Post
 class SocialLikePostSuccessState extends SocialStates{}
+class SocialUnLikePostSuccessState extends SocialStates{}
+class SocialUnLikePostErrorState extends SocialStates{}
 class SocialLikePostErrorState extends SocialStates{
   final String error;
 
   SocialLikePostErrorState(this.error);
 }
 //like Post
-class SocialGetLikePostSuccessState extends SocialStates{}
-class SocialGetLikePostErrorState extends SocialStates{
-  final String error;
+class SocialGetPostLikesSuccessState extends SocialStates{}
 
-  SocialGetLikePostErrorState(this.error);
-}
 //comment Post
 class SocialCommentPostSuccessState extends SocialStates{}
 class SocialCommentPostErrorState extends SocialStates{
@@ -84,13 +87,18 @@ class SocialCommentPostErrorState extends SocialStates{
 
   SocialCommentPostErrorState(this.error);
 }
-//get comment Post
-class SocialGetCommentPostSuccessState extends SocialStates{}
-class SocialGetCommentPostErrorState extends SocialStates{
+
+//delete comment
+class SocialDeletePostCommentSuccessState extends SocialStates{}
+class SocialDeletePostCommentErrorState extends SocialStates{
   final String error;
 
-  SocialGetCommentPostErrorState(this.error);
+  SocialDeletePostCommentErrorState(this.error);
 }
+
+//get comment Post
+class SocialGetPostCommentsSuccessState extends SocialStates{}
+
 // getAllUsers in chats Screen
 class SocialGetAllUsersLoadingState extends SocialStates{}
 class SocialGetAllUsersSuccessState extends SocialStates{}
@@ -105,4 +113,49 @@ class SocialGetAllUsersErrorState extends SocialStates{
 class SocialSendMessageSuccessState extends SocialStates{}
 class SocialSendMessageErrorState extends SocialStates{}
 class SocialGetMessagesSuccessState extends SocialStates{}
-class SocialGetMessagesErrorState extends SocialStates{}
+
+//add notification
+class SocialAddNotificationSuccessState extends SocialStates{}
+class SocialAddNotificationErrorState extends SocialStates{}
+
+//Get notification
+class SocialGetNotificationSuccessState extends SocialStates{}
+
+//pick photos
+class SocialPickPhotoSuccessState extends SocialStates{}
+class SocialPickPhotoErrorState extends SocialStates{}
+//remove picked Photo
+class SocialRemovePickedPhotoSuccessState extends SocialStates{}
+// add photo
+class SocialUploadPhotoLoadingState extends SocialStates{}
+class SocialUploadPhotoSuccessState extends SocialStates{}
+class SocialUploadPhotoErrorState extends SocialStates{}
+// add photo
+class SocialAddPhotoLoadingState extends SocialStates{}
+class SocialAddPhotoSuccessState extends SocialStates{}
+class SocialAddPhotoErrorState extends SocialStates{}
+// change follow widget
+
+class SocialChangeFollowWidgetState extends SocialStates{}
+
+//get number of user Posts
+class SocialGetNumberOfUserPostsState extends SocialStates{}
+
+//Follow user
+class SocialFollowUserSuccessState extends SocialStates{}
+class SocialFollowUserErrorState extends SocialStates{}
+
+//unFollow user
+class SocialUnfollowUserSuccessState extends SocialStates{}
+class SocialUnfollowUserErrorState extends SocialStates{}
+
+
+//get Followers
+class SocialGetUserFollowersSuccessState extends SocialStates{}
+class SocialGetUserFollowersErrorState extends SocialStates{}
+
+
+
+
+
+

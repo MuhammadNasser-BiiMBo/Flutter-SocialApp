@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:hive/modules/login/login_screen.dart';
+import 'package:hive/shared/network/cache_helper/cache_helper.dart';
+
 
 Widget defaultButton({
   double? height = 50,
@@ -54,12 +57,14 @@ Widget defaultTextButton({
   onPressed: function,
   child: Text(text),
 );
+
+final FocusNode focusNode=FocusNode();
 Widget defaultFormField({
   required TextEditingController controller,
   required TextInputType type,
   Function? onSubmit,
   VoidCallback? onTap,
-  Function? onChange,
+  // Function? onChange,
   required String label,
   required IconData prefix,
   // final FormFieldValidator<String>? validate,
@@ -78,13 +83,14 @@ Widget defaultFormField({
       onFieldSubmitted: (s){
         onSubmit!(s);
       },
-      onChanged:(s) {
-        onChange!(s);
-      },
+      // onChanged:(s) {
+      //   onChange!(s);
+      // },
       validator: (value){
         return validate(value);
       },
       decoration: InputDecoration(
+        hintText: label,
           labelText: label,
           prefixIcon: Icon(prefix),
           suffixIcon: suffix != null ? IconButton(
@@ -117,20 +123,6 @@ void navigateAndFinish(context, widget) => Navigator.pushAndRemoveUntil(
       (route)=>false,
 );
 
-// void submitOnBoarding(context){
-//   CacheHelper.saveData(
-//     key: 'onBoarding',
-//     value: true,
-//   ).then((value){
-//     if(value!)
-//     {
-//       navigateAndFinish(
-//         context,
-//         ShopLoginScreen(),
-//       );
-//     }
-//   });
-// }
 
 void showToast({required String text,required ToastStates state}){
   Fluttertoast.showToast(
@@ -146,8 +138,7 @@ void showToast({required String text,required ToastStates state}){
 
 enum ToastStates {success,error,warning}
 
-Color chooseToastColor(ToastStates state)
-{
+Color chooseToastColor(ToastStates state) {
   Color color;
   switch (state)
   {
@@ -164,11 +155,11 @@ Color chooseToastColor(ToastStates state)
   return color;
 }
 
-// void signOut(context){
-//   CacheHelper.removeData(key: 'token').then((value)  {
-//     if(value!) {
-//       navigateAndFinish(context,ShopLoginScreen());
-//     }
-//   });
-// }
+void signOut(context){
+  CacheHelper.removeData(key: 'uId').then((value)  {
+    if(value!) {
+      navigateAndFinish(context,LoginScreen());
+    }
+  });
+}
 

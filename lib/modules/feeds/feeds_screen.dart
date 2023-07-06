@@ -1,80 +1,110 @@
+
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
-import 'package:social_app/models/post_model.dart';
-import 'package:social_app/shared/cubit/cubit.dart';
-import 'package:social_app/shared/cubit/states.dart';
-import 'package:social_app/shared/styles/colors.dart';
+import 'package:hive/models/post_model.dart';
+import 'package:hive/modules/comments_screen/comments_screen.dart';
+import 'package:hive/modules/feeds/post_image_screen.dart';
+import 'package:hive/shared/components/components.dart';
+import 'package:hive/shared/cubit/cubit.dart';
+import 'package:hive/shared/cubit/states.dart';
+import 'package:hive/shared/styles/colors.dart';
 
 class FeedsScreen extends StatelessWidget {
-   FeedsScreen({Key? key}) : super(key: key);
+  FeedsScreen({Key? key}) : super(key: key);
 
-   var commentController = TextEditingController();
+  var commentController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    return  BlocConsumer<SocialCubit,SocialStates>(
+    return BlocConsumer<SocialCubit,SocialStates>(
       listener: (context,state){},
       builder: (context,state){
         var cubit = SocialCubit.get(context);
-        return ConditionalBuilder(
-          condition: cubit.posts.isNotEmpty,
-          builder:(context){
-            return SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                children:  [
-                  Card(
-                    clipBehavior: Clip.antiAliasWithSaveLayer,
-                    elevation: 15,
-                    margin: const EdgeInsets.all(10),
-                    child: Stack(
-                      alignment: Alignment.bottomLeft,
-                      children:  [
-                        const Image(
-                          image: NetworkImage('https://img.freepik.com/free-photo/happy-curly-haired-girl-makes-thumbs-up-sign-demonstrates-support-respect-someone-smiles-pleasantly-achieves-desirable-goal-wears-white-t-shirt-isolated-yellow-wall_273609-27736.jpg?w=1380&t=st=1675974945~exp=1675975545~hmac=ab63fdf5f047faf5e436f64a564a82be1c99d9e0eb0f7b70a2cab6bb55e1569a'),
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                        ),
-                        Container(
-                          color: Colors.black .withOpacity(0.3),
-                          child: const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text(
-                              'Communicate With Friends',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 15,
-                                  color: Colors.white
-                              ),
+        return RefreshIndicator(
+          onRefresh: () async{ cubit.getPosts(); },
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              children:  [
+                Card(
+                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                  elevation: 15,
+                  margin: const EdgeInsets.all(10),
+                  child: Stack(
+                    alignment: Alignment.bottomLeft,
+                    children:  [
+                      const Image(
+                        image: AssetImage("assets/images/feed_img.jpg"),
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                      ),
+                      Container(
+                        color: Colors.black .withOpacity(0.3),
+                        child: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text(
+                            'Communicate With Friends',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 15,
+                                color: Colors.white
                             ),
                           ),
-                        )
-                      ],
-                    ),
+                        ),
+                      )
+                    ],
                   ),
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemBuilder:(context,index)=> buildPostItem(cubit.posts[index],context,index,commentController),
-                    itemCount: cubit.posts.length,
-                    separatorBuilder: (BuildContext context, int index) {
-                      return const SizedBox(
-                        height: 10,
-                      );
-                    },
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  )
-                ],
-              ),
-            );
-          },
-          fallback: (context)=>const Center(child: CircularProgressIndicator(),),
+                ),
+                ConditionalBuilder(
+                  condition: cubit.posts.isNotEmpty&&cubit.model!.uId!.isNotEmpty&&(cubit.likesNumber.length==cubit.posts.length),
+                  builder:(context){
+                    FirebaseMessaging.onMessage.listen((event) {
+                      SocialCubit.get(context).addNotifications(event);
+                      showToast(text: 'on Message', state: ToastStates.success);
+                    });
+                    return ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemBuilder:(context,index){
+                        // cubit.getPostLikes(cubit.postsId[index],index );
+                        // cubit.getPostComments(cubit.postsId[index],index);
+                        return buildPostItem(cubit.posts[index],context,index,commentController);
+                      },
+                      itemCount: cubit.posts.length,
+                      separatorBuilder: (BuildContext context, int index) {
+                        return const SizedBox(
+                          height: 10,
+                        );
+                      },
+                    );
+                  },
+                  fallback: (context) {
+                    return  Padding(
+                      padding: const EdgeInsets.only(top: 20.0),
+                      child: Center(
+                        child: Text(
+                          'No Post Available...',
+                          style: TextStyle(
+                              fontSize: 18,color: Colors.grey.shade700
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(
+                  height: 20,
+                )
+              ],
+            ),
+          ),
         );
       },
     );
+
+
   }
 
 
@@ -83,94 +113,114 @@ class FeedsScreen extends StatelessWidget {
     elevation: 15,
     margin: const EdgeInsets.symmetric(horizontal: 10),
     child: Padding(
-      padding: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.only(top: 10.0),
       child: Column(
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CircleAvatar(
-                radius: 25,
-                backgroundImage: NetworkImage(model.image!),
-              ),
-              const SizedBox(width:  20,),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children:  [
-                    Row(
-                      children:  [
-                        Text(
-                          model.name!,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 15,
-                            height: 1.4,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        const Icon(
-                          Icons.check_circle,
-                          color: defaultColor,
-                          size: 17,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      model.dateTime!,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 12,
-                          color: Colors.grey,
-                          height: 1.4
-                      ),
-                    ),
-                  ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  radius: 25,
+                  backgroundImage: NetworkImage(model.image!),
                 ),
-              ),
-              IconButton(
-                  onPressed: (){},
-                  icon: const Icon(
-                    IconlyBroken.moreSquare,
+                const SizedBox(width:  20,),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children:  [
+                      Row(
+                        children:  [
+                          Text(
+                            model.name!,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 15,
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          const Icon(
+                            Icons.check_circle,
+                            color: defaultColor,
+                            size: 17,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        model.dateTime!.substring(0,15),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 12,
+                            color: Colors.grey,
+                            height: 1.4
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if(model.uId==SocialCubit.get(context).model!.uId)
+                  IconButton(
+                      onPressed: (){
+                        SocialCubit.get(context).deletePost(model.dateTime!,model.uId!);
+                      },
+                      icon: const Icon(
+                        IconlyBroken.delete,
+                      )
                   )
-              )
-            ],
+              ],
+            ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            padding: const EdgeInsets.symmetric(vertical: 8.0,horizontal: 10),
             child: Container(
               height: 1,
               width: double.infinity,
               color: Colors.grey[300],
             ),
           ),
-          Text(
-            model.text!,
-            // textAlign: TextAlign.end,
-            style: Theme.of(context).textTheme.subtitle1!.copyWith(
-              height: 1.3,
-              fontSize: 14,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 25),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  model.text!,
+                  style: Theme.of(context).textTheme.subtitle1!.copyWith(
+                    height: 1.3,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
             ),
           ),
           if(model.postImage!='')
             Padding(
-              padding: const EdgeInsetsDirectional.only(top: 10.0),
-              child: Container(
-                height: 250,
-                decoration:BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    image:  DecorationImage(
-                      image:NetworkImage(model.postImage!),
-                      fit: BoxFit.cover,
-                    )
-                ) ,
+              padding: const EdgeInsetsDirectional.only(top: 10.0,end: 2,start: 2),
+              child: InkWell(
+                onTap: (){
+                  navigateTo(context, PostImageScreen(image: model.postImage!,uploadDate:model.dateTime!));
+                },
+                child: Container(
+                  height: 300,
+                  padding: EdgeInsets.zero,
+                  decoration:BoxDecoration(
+                      color: Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(5),
+                      image:  DecorationImage(
+                        image:NetworkImage(model.postImage!),
+                        fit: BoxFit.contain,
+                      )
+                  ) ,
+                ),
               ),
             ),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5.0),
+            padding: const EdgeInsets.symmetric(vertical: 5.0,horizontal: 10),
             child: Row(
               children: [
                 Expanded(
@@ -188,7 +238,7 @@ class FeedsScreen extends StatelessWidget {
                             width: 5,
                           ),
                           Text(
-                            '${SocialCubit.get(context).likes[index]} Likes',
+                            '${SocialCubit.get(context).likesNumber[index]} Likes',
                             style: Theme.of(context).textTheme.caption!.copyWith(
                                 fontSize: 14
                             ),
@@ -214,9 +264,8 @@ class FeedsScreen extends StatelessWidget {
                           const SizedBox(
                             width: 5,
                           ),
-
                           Text(
-                          SocialCubit.get(context).commentsNumber[index]!=null?'${SocialCubit.get(context).commentsNumber[index]} Comments':'0 Comments',
+                            '${SocialCubit.get(context).commentsNumber[index]} comments',
                             style: Theme.of(context).textTheme.caption!.copyWith(
                                 fontSize: 14
                             ),
@@ -231,7 +280,7 @@ class FeedsScreen extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(bottom: 10.0),
+            padding: const EdgeInsets.only(bottom: 0,left: 10,right: 10),
             child: Container(
               height: 1,
               width: double.infinity,
@@ -240,92 +289,103 @@ class FeedsScreen extends StatelessWidget {
           ),
           Row(
             children: [
+              SocialCubit.get(context).isLike[index]?
               Expanded(
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 18,
-                      backgroundImage: NetworkImage(model.image!),
-                    ),
-                    const SizedBox(width: 15,),
-                    Expanded(
-                      child: TextFormField(
-                        maxLines: 1,
-                        controller: commentController,
-                        keyboardType: TextInputType.text,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          height: 1,
-                          overflow: TextOverflow.ellipsis,
-
+                child: SizedBox(
+                  height: 40,
+                  child: InkWell(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children:  [
+                        const Icon(
+                          Icons.heart_broken,
+                          size: 18,
+                          color: Colors.red,
                         ),
-                        decoration: const InputDecoration(
-                            contentPadding: EdgeInsetsDirectional.only(start: 10),
-                            label: Text(
-                              'write a comment...',
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(23)),
-                              gapPadding: 2,
-                            ),
-                            floatingLabelBehavior: FloatingLabelBehavior.never
+                        const SizedBox(
+                          width: 5,
                         ),
-                      ),
+                        Text(
+                          'Unlike',
+                          style: Theme.of(context).textTheme.caption!.copyWith(
+                              fontSize: 15
+                          ),
+                        ),
+                      ],
                     ),
-
-                  ],
+                    onTap: (){
+                      SocialCubit.get(context).unLikePost(SocialCubit.get(context).postsId[index],index);
+                    },
+                  ),
+                ),
+              ):
+              Expanded(
+                child: SizedBox(
+                  height: 40,
+                  child: InkWell(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children:  [
+                        const Icon(
+                          IconlyBroken.heart,
+                          size: 18,
+                          color: Colors.red,
+                        ),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        Text(
+                          'Like',
+                          style: Theme.of(context).textTheme.caption!.copyWith(
+                              fontSize: 15
+                          ),
+                        ),
+                      ],
+                    ),
+                    onTap: (){
+                      SocialCubit.get(context).likePost(SocialCubit.get(context).postsId[index],index);
+                    },
+                  ),
                 ),
               ),
-              const SizedBox(width: 5),
-              InkWell(
-                child: Row(
-                  children:  [
-                    const Icon(
-                      IconlyBroken.heart,
-                      size: 18,
-                      color: Colors.red,
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Text(
-                      'Like',
-                      style: Theme.of(context).textTheme.caption!.copyWith(
-                          fontSize: 15
-                      ),
-                    ),
-                  ],
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2.0),
+                child: Container(
+                  color: Colors.grey.shade400,
+                  width: 1,
+                  height: 36,
                 ),
-                onTap: (){
-                  SocialCubit.get(context).likePost(SocialCubit.get(context).postsId[index]);
-                },
               ),
-              const SizedBox(width: 10,),
-              InkWell(
-                child: Row(
-                  children:  [
-                    const Icon(
-                      IconlyBroken.arrowUpSquare,
-                      size: 18,
-                      color: Colors.green,
+              Expanded(
+                child: SizedBox(
+                  height: 40,
+                  child: InkWell(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children:  [
+                        const Icon(
+                          IconlyBroken.chat,
+                          size: 18,
+                          color: defaultColor,
+                        ),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        Text(
+                          'Comment',
+                          style: Theme.of(context).textTheme.caption!.copyWith(
+                              fontSize: 15
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Text(
-                      'Share',
-                      style: Theme.of(context).textTheme.caption!.copyWith(
-                          fontSize: 15
-                      ),
-                    ),
-                  ],
+                    onTap: (){
+                      SocialCubit.get(context).getPostComments(SocialCubit.get(context).postsId[index],index);
+                      navigateTo(context,  CommentsScreen(postId:SocialCubit.get(context).postsId[index],postIndex: index));
+                    },
+                  ),
                 ),
-                onTap: (){
-                  SocialCubit.get(context).commentPost(
-                      postId:SocialCubit.get(context).postsId[index],
-                      commentData: commentController.text
-                  );
-                },
               ),
             ],
           ),
